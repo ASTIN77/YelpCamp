@@ -21,8 +21,8 @@ app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + "/public"));
 app.use(methodOverride("_method"));
-// mongoose.connect("mongodb://localhost/yelpcamp");
-mongoose.connect("mongodb://astin77:Irnbru77#@ds151544.mlab.com:51544/yelpcamp77", {useMongoClient: true});
+mongoose.connect(process.env.DATABASEURL);
+//mongoose.connect("mongodb://astin77:Irnbru77#@ds151544.mlab.com:51544/yelpcamp77", {useMongoClient: true});
 // Seed Database
 // seedDB();
 
@@ -48,6 +48,8 @@ app.use(function(req,res, next){
 app.use(indexRoutes);
 app.use("/campgrounds", campgroundRoutes);
 app.use("/campgrounds/:id/comments", commentsRoutes);
+
+
 app.listen(process.env.PORT, process.env.IP, function() {
     console.log("Application Server Running");
 });
