@@ -27,7 +27,7 @@ router.post("/", middleware.isLoggedIn, function(req, res) {
     var author = {
         id: req.user._id,
         username: req.user.username
-    }
+    };
     
     var newCampground = { name: name, image: image, description: desc, author: author, price: price };
     // Add new campground to database

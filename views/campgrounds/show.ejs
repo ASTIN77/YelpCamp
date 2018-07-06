@@ -12,15 +12,15 @@
         </div>
        <div class="col-md-9">
                    <div class="thumbnail">
-                      <img class="image-responsive" src="<%= campground.image %>">
+                      <img class="image-responsive" src="<%=campground.image%>">
                       <div class="caption">
-                          <h4 class="pull-right">£<%= campground.price %>/night</h4>
+                          <h4 class="pull-right">£ <%=campground.price%>/night</h4>
                           <h4><a><%= campground.name %></a></h4>
                           <p><%= campground.description %></p>
-                          <p><em><strong>Submitted By <%= campground.author.username %></strong></em></p>
+                          <p><em><strong>Submitted By <%=campground.author.username%></strong></em></p>
                           <% if(currentUser && campground.author.id.equals(currentUser._id)){ %>
-                              <a class = "btn btn-warning btn-xs" href="/campgrounds/<%= campground._id %>/edit">Edit</a>
-                              <form class="deleteForm" action="/campgrounds/<%= campground._id %>?_method=DELETE" method="POST">
+                              <a class = "btn btn-warning btn-xs" href="/campgrounds/<%=campground._id%>/edit">Edit</a>
+                              <form class="deleteForm" action="/campgrounds/<%=campground._id%>?_method=DELETE" method="POST">
                                   <button class="btn btn-danger btn-xs">Delete</button>
                               </form>
                               <% } %>
