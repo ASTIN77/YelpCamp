@@ -6,13 +6,13 @@ var middleware = require("../middleware");
 
 // INDEX ROUTE
 router.get("/", (req, res) => {
-  Campground.find({}).then((allCampgrounds) => {
-    if (!allCampgrounds) {
-      console.log(err);
-    } else {
+  try {
+    Campground.find({}).then((allCampgrounds) => {
       res.render("campgrounds/index", { campgrounds: allCampgrounds });
-    }
-  });
+    });
+  } catch {
+    console.log("An error has occured");
+  }
 });
 
 // CREATE ROUTE
@@ -36,13 +36,13 @@ router.post("/", middleware.isLoggedIn, (req, res) => {
     price: price,
   };
   // Add new campground to database
-  Campground.create(newCampground).then((newlyCreated) => {
-    if (!newlyCreated) {
-      console.log("An error has occured");
-    } else {
+  try {
+    Campground.create(newCampground).then((newlyCreated) => {
       res.redirect("/campgrounds");
-    }
-  });
+    });
+  } catch {
+    console.log("An error has occured");
+  }
 });
 
 // NEW ROUTE
@@ -54,16 +54,17 @@ router.get("/new", middleware.isLoggedIn, (req, res) => {
 // SHOW ROUTE
 
 router.get("/:id", (req, res) => {
-  Campground.findById(req.params.id)
-    .populate("comments")
-    .then(function (foundCampground) {
-      if (!foundCampground) {
-        console.log("No Campground found!");
-      } else {
+  try {
+    Campground.findById(req.params.id)
+      .populate("comments")
+      .then(function (foundCampground) {
         res.render("campgrounds/show", { campground: foundCampground });
-      }
-    });
+      });
+  } catch {
+    console.log("No Campground found!");
+  }
 });
+
 //EDIT CAMPGROUND ROUTE
 
 router.get("/:id/edit", middleware.checkCampgroundOwnership, (req, res) => {
@@ -85,7 +86,7 @@ router.put("/:id", middleware.checkCampgroundOwnership, (req, res) => {
 
 // DESTROY CAMPGROUND ROUTE
 
-router.delete("/:id", middleware.checkCampgroundOwnership, function (req, res) {
+router.delete("/:id", middleware.checkCampgroundOwnership, (req, res) => {
   Campground.findByIdAndRemove(req.params.id).then(() => {
     res.redirect("/campgrounds");
   });
