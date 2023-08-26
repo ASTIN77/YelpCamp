@@ -7,19 +7,20 @@ const campground = require("../models/campground");
 
 //NEW ROUTE
 router.get("/new", middleware.isLoggedIn, (req, res) => {
-  Campground.findById(req.params.id)
-    .error(new Error("No campground found!"))
-    .then((campground) => {
+  try {
+    Campground.findById(req.params.id).then((campground) => {
       res.render("comments/new", { campground: campground });
     });
+  } catch {
+    console.log("No campground found!");
+  }
 });
 
 // CREATE ROUTE
 
 router.post("/", middleware.isLoggedIn, (req, res) => {
-  Campground.findById(req.params.id)
-    .error(new Error("No campground found!"))
-    .then((campground) => {
+  try {
+    Campground.findById(req.params.id).then((campground) => {
       Comment.create(req.body.comment).then((comment) => {
         // add username and id to comment
         comment.author.id = req.user._id;
@@ -32,6 +33,9 @@ router.post("/", middleware.isLoggedIn, (req, res) => {
         res.redirect("/campgrounds/" + campground._id);
       });
     });
+  } catch {
+    console.log("No campground found!");
+  }
 });
 
 // COMMENT EDIT ROUTE
@@ -40,45 +44,47 @@ router.get(
   "/:comment_id/edit",
   middleware.checkCommentOwnership,
   (req, res) => {
-    Comment.findById(req.params.comment_id)
-      .error(new Error("Oops....something went wrong!"))
-      .then((foundComment) => {
+    try {
+      Comment.findById(req.params.comment_id).then((foundComment) => {
         res.render("comments/edit", {
           campground_id: req.params.id,
           comment: foundComment,
         });
       });
+    } catch {
+      console.log("Oops....something went wrong!");
+    }
   }
 );
 
 // COMMENT UPDATE ROUTE
 
 router.put("/:comment_id", middleware.checkCommentOwnership, (req, res) => {
-  Comment.findByIdAndUpdate(req.params.comment_id, req.body.comment).then(
-    (updatedComent) => {
-      if (err) {
-        req.flash("error", "Oops....something went wrong!");
-        res.redirect("back");
-      } else {
+  try {
+    Comment.findByIdAndUpdate(req.params.comment_id, req.body.comment).then(
+      (updatedComent) => {
         req.flash("success", "Comment successfully updated!");
         res.redirect("/campgrounds/" + req.params.id);
       }
-    }
-  );
+    );
+  } catch {
+    req.flash("error", "Oops....something went wrong!");
+    res.redirect("back");
+  }
 });
 
 // DESTROY COMMENT ROUTE
 
 router.delete("/:comment_id", middleware.checkCommentOwnership, (req, res) => {
-  Comment.findByIdAndRemove(req.params.comment_id).then(() => {
-    if (err) {
-      req.flash("error", "Oops....something went wrong!");
-      res.redirect("back");
-    } else {
+  try {
+    Comment.findByIdAndRemove(req.params.comment_id).then(() => {
       req.flash("success", "Comment successfully removed.");
       res.redirect("/campgrounds/" + req.params.id);
-    }
-  });
+    });
+  } catch {
+    req.flash("error", "Oops....something went wrong!");
+    res.redirect("back");
+  }
 });
 
 module.exports = router;
