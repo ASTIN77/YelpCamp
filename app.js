@@ -11,6 +11,7 @@ var express = require("express"),
   methodOverride = require("method-override"),
   seedDB = require("./seeds"),
   flash = require("connect-flash");
+
 mongoose.Promise = global.Promise;
 require("dotenv").config();
 
@@ -23,11 +24,7 @@ app.set("port", process.env.PORT || 3000);
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + "/public"));
 app.use(methodOverride("_method"));
-mongoose.connect(process.env.YELPCAMPDATABASEURL, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
-//SeedDB();
+
 // PASSPORT CONFIG
 app.use(
   require("express-session")({
@@ -56,11 +53,7 @@ app.use("/campgrounds/:id/comments", commentsRoutes);
 
 const connectDB = async () => {
   try {
-    const conn = mongoose.connect(process.env.YELPCAMPDATABASEURL, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      useCreateIndex: true,
-    });
+    const conn = mongoose.connect(process.env.YELPCAMPDATABASEURL);
   } catch (error) {
     console.log(error);
     process.exit(1);
