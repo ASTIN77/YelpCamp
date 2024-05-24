@@ -20,7 +20,8 @@ var commentsRoutes = require("./routes/comments"),
   indexRoutes = require("./routes/index");
 
 app.set("view engine", "ejs");
-app.set("port", process.env.PORT || 3000);
+app.set("port", process.env.PORT || 3003);
+app.set("views", __dirname + "views");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + "/public"));
 app.use(methodOverride("_method"));
