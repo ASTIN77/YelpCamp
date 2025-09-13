@@ -1,7 +1,7 @@
 // --- CampReviewer (Node 22 + Mongoose 8 ready) ---
 
 // Load environment variables first
-require('dotenv').config();
+try { require('dotenv').config(); } catch (_) {}
 
 // Core deps
 const express = require('express');
@@ -32,22 +32,19 @@ const flash = require('connect-flash');
 // --- Express basics ---
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-app.set('port', process.env.PORT || 3003); // <-- use 3002 for campreviewer
+app.set('port', process.env.PORT || 3003);
 
 app.use(express.urlencoded({ extended: true })); // replaces bodyParser
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(methodOverride('_method'));
 
 // --- Mongo connection ---
-const MONGO_URI =
-  process.env.YELPCAMPDATABASEURL;
-
+const MONGO_URI = process.env.YELPCAMPDATABASEURL;
 if (!MONGO_URI) {
   throw new Error('Failure to connect to MongoDB database');
 }
-
 async function connectDB() {
-  await mongoose.connect(MONGO_URI); // Mongoose 8: simple connect
+  await mongoose.connect(MONGO_URI);
   console.log('✅ Mongo connected (CampReviewer)');
 }
 
@@ -73,7 +70,7 @@ app.use(
 app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
-passport.use(new LocalStrategy(User.authenticate()));
+passport.use(new LocalStrategy(User.authenticate()));   // from passport-local-mongoose
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
@@ -85,6 +82,40 @@ app.use(function (req, res, next) {
   res.locals.confirm = req.flash('confirm');
   next();
 });
+
+// ---- Time + date helpers (define ONCE) ----
+
+// Friendly absolute blog-style timestamp: "9 Sep 2025 at 16:42" (UK time)
+app.locals.blogDateTime = (date) => {
+  if (!date) return '';
+  const d = new Date(date);
+  const dateStr = d.toLocaleDateString('en-GB', {
+    timeZone: 'Europe/London',
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+  const timeStr = d.toLocaleTimeString('en-GB', {
+    timeZone: 'Europe/London',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
+  return `${dateStr} at ${timeStr}`;
+};
+
+// Relative age like "3 days ago" (today if < 24h)
+app.locals.daysAgo = (date) => {
+  if (!date) return 'unknown';
+  const d = new Date(date);
+  const days = Math.floor((Date.now() - d.getTime()) / (24 * 60 * 60 * 1000));
+  if (days <= 0) return 'today';
+  return `${days} day${days === 1 ? '' : 's'} ago`;
+};
+
+// ISO string for <time datetime="">
+app.locals.isoDate = (date) => (date ? new Date(date).toISOString() : '');
+// ---- end helpers ----
 
 // --- Routes ---
 app.use(indexRoutes);
@@ -102,4 +133,3 @@ connectDB()
     console.error('❌ Mongo connection error:', err);
     process.exit(1);
   });
-
