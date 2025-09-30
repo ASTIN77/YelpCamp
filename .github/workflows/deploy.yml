@@ -1,0 +1,13 @@
+name: Deploy yelpcamp
+on: { workflow_dispatch: {}, push: { branches: ["main"] } }
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: deployer
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            sudo -u deployer /usr/local/bin/deploy-app "/var/www/yelpcamp" "yelpcamp" "main" "http://127.0.0.1:3002/healthz"
